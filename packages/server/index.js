@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const logger = require('./utils/logger');
 const app = express();
 const PORT = 3000;
 
@@ -9,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
+const HEMOCENTROS_FILE = path.join(__dirname, 'data', 'hemocentros.json');
 
 // Helper to read users
 const readUsers = () => {
@@ -19,7 +21,7 @@ const readUsers = () => {
     const data = fs.readFileSync(USERS_FILE, 'utf8');
     return JSON.parse(data || '[]');
   } catch (err) {
-    console.error('Error reading users file:', err);
+    logger.error(`Erro ao ler arquivo users.json: ${err.stack}`);
     return [];
   }
 };
@@ -29,37 +31,32 @@ const writeUsers = (users) => {
   try {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
   } catch (err) {
-    console.error('Error writing users file:', err);
+    logger.error(`Erro ao escrever arquivo users.json: ${err.stack}`);
   }
 };
 
-// SEED DATA
-const hemocentros = [
-  {
-    id: 1,
-    nome: "Hosp. Estadual Diadema",
-    endereco: "R. José Bonifácio, 1641 - Serraria, Diadema - SP",
-    telefone: "(11) 3583-1475",
-    lat: -23.6936,
-    lng: -46.6111
-  },
-  {
-    id: 2,
-    nome: "Hosp. Mário Covas",
-    endereco: "Rua Dr. Henrique Calderazzo, 321 - Santo André - SP",
-    telefone: "(11) 2324-5780",
-    lat: -23.6667,
-    lng: -46.5333
-  },
-  {
-    id: 3,
-    nome: "Colsan SBC",
-    endereco: "Rua Pedro Jacobucci, 440 - Jardim das Américas, SBC - SP",
-    telefone: "(11) 2111-0007",
-    lat: -23.6914,
-    lng: -46.5647
+// Helper to read hemocentros
+const readHemocentros = () => {
+  try {
+    if (!fs.existsSync(HEMOCENTROS_FILE)) {
+      return [];
+    }
+    const data = fs.readFileSync(HEMOCENTROS_FILE, 'utf8');
+    return JSON.parse(data || '[]');
+  } catch (err) {
+    logger.error(`Erro ao ler arquivo hemocentros.json: ${err.stack}`);
+    return [];
   }
-];
+};
+
+// Helper to write hemocentros
+const writeHemocentros = (hemocentros) => {
+  try {
+    fs.writeFileSync(HEMOCENTROS_FILE, JSON.stringify(hemocentros, null, 2), 'utf8');
+  } catch (err) {
+    logger.error(`Erro ao escrever arquivo hemocentros.json: ${err.stack}`);
+  }
+};
 
 const agendamentos = [];
 
@@ -82,6 +79,7 @@ app.post('/api/auth/register', (req, res) => {
   users.push({ email, password });
   writeUsers(users);
 
+  logger.info(`Usuário ${email} criado com sucesso`);
   res.status(201).json({ message: 'Usuário criado com sucesso' });
 });
 
@@ -99,6 +97,7 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ error: 'Credenciais inválidas' });
   }
 
+  logger.info(`Usuário ${email} logou no sistema`);
   // Login simples: retorna um token mockado e os dados do usuário
   res.json({ 
     token: 'mock-jwt-token', 
@@ -108,7 +107,36 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/hemocentros', (req, res) => {
+  const hemocentros = readHemocentros();
   res.json(hemocentros);
+});
+
+app.post('/api/hemocentros', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || authHeader !== 'Bearer mock-jwt-token') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { nome, endereco, telefone, lat, lng } = req.body;
+  if (!nome || !endereco || !telefone || lat === undefined || lng === undefined) {
+    return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
+  }
+
+  const hemocentros = readHemocentros();
+  const novoHemocentro = {
+    id: hemocentros.length > 0 ? Math.max(...hemocentros.map(h => h.id)) + 1 : 1,
+    nome,
+    endereco,
+    telefone,
+    lat,
+    lng
+  };
+
+  hemocentros.push(novoHemocentro);
+  writeHemocentros(hemocentros);
+
+  logger.info(`Hemocentro ${nome} cadastrado com sucesso`);
+  res.status(201).json(novoHemocentro);
 });
 
 app.post('/api/agendamentos', (req, res) => {
