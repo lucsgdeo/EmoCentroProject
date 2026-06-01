@@ -23,6 +23,7 @@ async function fetchAgendamentos() {
     try {
         // Primeiro buscamos os hemocentros para poder mostrar o nome no card
         const respHemo = await fetch(`${API_URL}/hemocentros`);
+        if (!respHemo.ok) throw new Error('Falha ao carregar hemocentros');
         allHemocentros = await respHemo.json();
 
         const response = await fetch(`${API_URL}/agendamentos`, {
