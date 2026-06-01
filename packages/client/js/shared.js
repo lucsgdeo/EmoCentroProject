@@ -16,7 +16,7 @@ function renderHeader() {
             <a href="hemocentros.html">Hemocentros</a>
             <a href="sobre.html">Sobre</a>
             ${isLoggedIn 
-                ? '<a href="agendamento.html">Agendar</a> <a href="#" id="logout-btn">Sair</a>' 
+                ? '<a href="agendamento.html">Agendar</a> <a href="agendamentos.html">Meus Agendamentos</a> <a href="#" id="logout-btn">Sair</a>' 
                 : '<a href="login.html">Login</a>'
             }
         </nav>
