@@ -13,3 +13,7 @@
 
 - Pesquisa por CEP, Região, etc, pendente
 - Remover cadastro de novos hemocentros, esta aba deve estar presente apenas para usuários administradores
+
+## Sobre o projeto 
+
+- Adicionar changelog, README e documentação
