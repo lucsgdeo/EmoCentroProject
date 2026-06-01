@@ -160,6 +160,31 @@ button:active {
 
 .form-group {
     margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #777;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    color: var(--primary-color);
+    background: none;
 }
 
 .form-group label {
