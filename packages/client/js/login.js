@@ -16,20 +16,16 @@ function setupTabs() {
     tabLogin.addEventListener('click', () => {
         loginForm.style.display = 'block';
         registerForm.style.display = 'none';
-        tabLogin.style.borderBottom = '2px solid var(--primary-color)';
-        tabLogin.style.color = 'var(--text-color)';
-        tabRegister.style.borderBottom = 'none';
-        tabRegister.style.color = '#777';
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
         authMsg.style.display = 'none';
     });
 
     tabRegister.addEventListener('click', () => {
         loginForm.style.display = 'none';
         registerForm.style.display = 'block';
-        tabRegister.style.borderBottom = '2px solid var(--primary-color)';
-        tabRegister.style.color = 'var(--text-color)';
-        tabLogin.style.borderBottom = 'none';
-        tabLogin.style.color = '#777';
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
         authMsg.style.display = 'none';
     });
 }
